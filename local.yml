@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/local/django/DockerFile
+    command: /start
+    container_name: django-api
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.envs/.local/.django
+    depends_on:
+      - redis
+    networks:
+      - devops_proj
+
+  redis:
+    image: redis:6-alpine
+    container_name: redis
+    networks:
+      - devops_proj
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/local/django/DockerFile
+    command: /start_worker
+    container_name: worker
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+    depends_on:
+      - redis
+    networks:
+      - devops_proj
+
+  beatworker:
+    build:
+      context: .
+      dockerfile: ./docker/local/django/DockerFile
+    command: /start_beat
+    container_name: beat
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+    depends_on:
+      - redis
+    networks:
+      - devops_proj
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./docker/local/django/DockerFile
+    command: /start_flower
+    container_name: flower
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    networks:
+      - devops_proj
+
+networks:
+  devops_proj:
+    driver: bridge
+
+volumes:
+  static_volume:
+  media_volume:
