@@ -39,3 +39,30 @@ black:
 
 test:
 	docker compose -f local.yml run --rm api python manage.py test
+
+build_p:
+	docker compose -f production.yml up --build -d --remove-orphans
+
+up_p:
+	docker compose -f production.yml up -d
+
+down_p:
+	docker compose -f production.yml down
+
+show_logs_p:
+	docker compose -f production.yml logs
+
+migrate_p:
+	docker compose -f production.yml run --rm api python manage.py migrate
+
+makemigrations_p:
+	docker compose -f production.yml run --rm api python manage.py makemigrations
+
+collectstatic_p:
+	docker compose -f production.yml run --rm api python manage.py collectstatic --no-input --clear
+
+superuser_p:
+	docker compose -f production.yml run --rm api python manage.py createsuperuser
+
+down-v_p:
+	docker compose -f production.yml down -v
